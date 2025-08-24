@@ -35,7 +35,7 @@ const todoComputeData = computed(() => {
   <el-card class="box-card">
     <template #header>
       <div class="clearfix">
-        <span>待办List</span>
+        <span>待办List列表</span>
       </div>
     </template>
     <router-view></router-view>
