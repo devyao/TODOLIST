@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import TodoView from '../views/TodoView.vue'
 
 const routes = [
@@ -8,7 +8,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/TODOLIST/'),
+  history: createWebHashHistory('/TODOLIST/'),
   routes
 })
 
