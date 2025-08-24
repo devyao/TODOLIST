@@ -1,0 +1,33 @@
+{
+  "name": "todolist",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.13",
+    "element-plus": "^2.10.4",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-vue": "^9.25.0",
+    "prettier": "^3.6.2",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4",
+    "vue-eslint-parser": "^9.4.2",
+    "vue-tsc": "^2.2.12"
+  }
+}
