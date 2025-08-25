@@ -4,35 +4,38 @@ import TodoItem from '../components/TodoItem.vue'
 import { useTodoStore } from '../store'
 import { computed } from 'vue'
 const store = useTodoStore()
-let todos = store.todos
+
+// 使用computed来获取响应式的todos数据
+const todos = computed(() => store.todos)
 
 const toggleTodo = (id: number, completed: boolean) => {
-  const todo = todos.find(item => item.id === id)
+  const todo = store.todos.find(item => item.id === id)
   if (todo) {
     todo.completed = completed
   }
 }
 const editTodo = (id: number, newTitle: string, newContent: string) => {
-  const todo = todos.find(item => item.id === id)
+  const todo = store.todos.find(item => item.id === id)
   if (todo) {
     todo.title = newTitle
     todo.content = newContent
   }
 }
 const delTodo = (id: number) => {
-  console.log('删除todo', id, todos)
-  todos = todos.filter(item => item.id !== id)
+  console.log('删除todo', id, store.todos)
+  // 直接更新store中的数据
+  store.todos = store.todos.filter(item => item.id !== id)
 }
 
 const route = useRoute()
 const filterTodos = computed(() => {
   const path = route.path
   if (path === '/will') {
-    return todos.filter(todo => todo.completed === false)
+    return todos.value.filter(todo => todo.completed === false)
   } else if (path === '/completed') {
-    return todos.filter(todo => todo.completed === true)
+    return todos.value.filter(todo => todo.completed === true)
   } else {
-    return todos
+    return todos.value
   }
 })
 console.log(filterTodos)
