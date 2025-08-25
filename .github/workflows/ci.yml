@@ -37,14 +37,14 @@ jobs:  # 定义工作流中的作业
         env:  # 环境变量配置
           SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
             # 复制操作的参数。"-avzr --delete"意味部署时清空服务器目标目录下的文件
-            ARGS: "-avzr --delete"
-            # 源目录，相对于$GITHUB_WORKSPACE根目录的路径
-            SOURCE: "./public/"
-            # 服务器域名/IP
-            REMOTE_HOST: ${{ secrets.HOST }}
-            # 服务器默认用户名为root
-            REMOTE_USER: "root"
-            # 目标目录
-            TARGET: '/usr/local/www/dist'
-            # 排除目录
-            EXCLUDE: "/node_modules/"
+          ARGS: "-avzr --delete"
+          # 源目录，相对于$GITHUB_WORKSPACE根目录的路径
+          SOURCE: "./public/"
+          # 服务器域名/IP
+          REMOTE_HOST: ${{ secrets.HOST }}
+          # 服务器默认用户名为root
+          REMOTE_USER: "root"
+          # 目标目录
+          TARGET: '/usr/local/www/dist'
+          # 排除目录
+          EXCLUDE: "/node_modules/"
