@@ -50,6 +50,5 @@ jobs:
           TARGET: '/www/wwwroot/todolist'
           # 排除目录
           EXCLUDE: "/node_modules/"
-          rsync_options: "--exclude=.user.ini"
 
 
