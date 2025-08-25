@@ -1,51 +1,43 @@
-# 将静态内容部署到 GitHub Pages 的简易工作流程 - 工作流的描述注释
-name: Deploy static content to Pages  # 工作流的名称，会在 GitHub Actions 页面显示
+# 构建并部署到阿里云 ECS 的工作流程 - 工作流的描述注释
+name: Build And Deploy To Aliyun ECS  # 工作流的名称，会在 GitHub Actions 页面显示
 
 on:  # 定义触发工作流的事件
-  # 仅在推送到默认分支时运行。 - 注释说明推送触发条件
+  # 当推送到 main 分支时触发 - 推送触发条件
   push:  # 当代码推送时触发
     branches: ['main']  # 仅当推送到 main 分支时触发工作流
-
-  # 这个选项可以使你手动在 Action tab 页面触发工作流 - 手动触发说明
-  workflow_dispatch:  # 允许在 GitHub 界面手动触发工作流
-
-# 设置 GITHUB_TOKEN 的权限，以允许部署到 GitHub Pages。 - 权限设置说明
-permissions:  # 定义工作流的权限范围
-  contents: read  # 允许读取仓库内容的权限
-  pages: write  # 允许写入 GitHub Pages 的权限
-  id-token: write  # 允许写入 ID token 的权限（用于 OIDC 认证）
-
-# 允许一个并发的部署 - 并发控制说明
-concurrency:  # 并发控制配置
-  group: 'pages'  # 将并发限制在 'pages' 组内
-  cancel-in-progress: true  # 如果有新的部署开始，取消正在进行的部署
+  # 当有 PR 提交到 main 分支时触发 - PR 触发条件
+  pull_request:  # 当创建或更新 Pull Request 时触发
+    branches: ['main']  # 仅当 PR 目标是 main 分支时触发工作流
 
 jobs:  # 定义工作流中的作业
-  # 单次部署的工作描述 - 部署作业说明
-  deploy:  # 作业名称为 deploy
-    environment:  # 指定部署环境
-      name: github-pages  # 环境名称为 github-pages
-      url: ${{ steps.deployment.outputs.page_url }}  # 部署完成后的 URL，从 deployment 步骤的输出获取
-    runs-on: ubuntu-latest  # 指定运行环境为最新版本的 Ubuntu
+  build:  # 作业名称为 build
+    runs-on: ubuntu-latest  # 指定运行环境为最新版本的 Ubuntu (2-core CPU/7 GB RAM/14 GB SSD)
     steps:  # 定义作业中的步骤
       - name: Checkout  # 步骤名称：检出代码
-        uses: actions/checkout@v4  # 使用 checkout action v4 版本来检出仓库代码
-      - name: Set up Node  # 步骤名称：设置 Node.js 环境
+        uses: actions/checkout@v2  # 使用 checkout action v2 版本来检出仓库代码
+        with:  # 配置参数
+          persist-credentials: false  # 不持久化 Git 凭据，提高安全性
+          ref: main  # 指定检出 main 分支
+          submodules: true  # 同时检出子模块（如果有的话）
+
+      - name: Set up Node.js  # 步骤名称：设置 Node.js 环境
         uses: actions/setup-node@v4  # 使用 setup-node action v4 版本
         with:  # 配置参数
           node-version: 20  # 指定 Node.js 版本为 20
           cache: 'npm'  # 启用 npm 缓存以加速依赖安装
+
       - name: Install dependencies  # 步骤名称：安装依赖
         run: npm ci  # 运行 npm ci 命令安装项目依赖（比 npm install 更适合 CI 环境）
-      - name: Build  # 步骤名称：构建项目
-        run: npm run build  # 运行构建命令，生成生产版本的静态文件
-      - name: Setup Pages  # 步骤名称：设置 Pages 环境
-        uses: actions/configure-pages@v4  # 使用 configure-pages action v4 版本配置 GitHub Pages
-      - name: Upload artifact  # 步骤名称：上传构建产物
-        uses: actions/upload-pages-artifact@v3  # 使用 upload-pages-artifact action v3 版本
-        with:  # 配置参数
-          # Upload dist folder - 上传 dist 文件夹注释
-          path: './dist'  # 指定要上传的路径为 ./dist 目录（构建输出目录）
-      - name: Deploy to GitHub Pages  # 步骤名称：部署到 GitHub Pages
-        id: deployment  # 为这个步骤指定 ID，以便其他步骤引用其输出
-        uses: actions/deploy-pages@v4  # 使用 deploy-pages action v4 版本进行实际部署
+
+      - name: Build project  # 步骤名称：构建项目
+        run: npm run build  # 运行构建命令，生成生产版本的静态文件到 dist 目录
+
+      - name: Deploy to Aliyun ECS  # 步骤名称：部署到阿里云 ECS 服务器
+        uses: easingthemes/ssh-deploy@v2.1.5  # 使用 SSH 部署 action，实现服务器文件传输
+        env:  # 环境变量配置
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}  # 阿里云服务器的 SSH 私钥（从 GitHub Secrets 获取）
+          ARGS: "-avzr --delete"  # rsync 参数：a=归档模式,v=详细输出,z=压缩传输,r=递归,delete=删除目标中多余文件
+          SOURCE: "./dist/"  # 源文件路径，部署构建后的 dist 目录内容
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}  # 阿里云服务器的 IP 地址（从 GitHub Secrets 获取）
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}  # 阿里云服务器的用户名（从 GitHub Secrets 获取）
+          TARGET: "/opt/webwiki/docs"  # 服务器上的目标部署路径
