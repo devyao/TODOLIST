@@ -4,7 +4,9 @@ import AddTodo from './components/AddTodo.vue'
 import { useTodoStore } from './store'
 const isShowAddForm = ref<boolean>(false)
 const store = useTodoStore()
-const todos = store.todos
+
+// 使用computed来获取响应式的todos数据
+const todos = computed(() => store.todos)
 
 const showDialog = () => {
   isShowAddForm.value = true
@@ -13,7 +15,7 @@ const showDialog = () => {
 const handleAddTodo = (id: number, title: string, content: string) => {
   isShowAddForm.value = false
   if (!id || !title || !content) return
-  todos.unshift({
+  store.todos.unshift({
     id,
     title,
     content,
@@ -21,8 +23,8 @@ const handleAddTodo = (id: number, title: string, content: string) => {
   })
 }
 const todoComputeData = computed(() => {
-  const allTodosNum = todos.length
-  const willTodosNum = todos.filter(todo => todo.completed === false).length
+  const allTodosNum = todos.value.length
+  const willTodosNum = todos.value.filter(todo => todo.completed === false).length
   const completedTodosNum = allTodosNum - willTodosNum
   return {
     allNum: allTodosNum,
