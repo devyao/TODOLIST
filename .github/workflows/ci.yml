@@ -35,9 +35,16 @@ jobs:  # 定义工作流中的作业
       - name: Deploy to Aliyun ECS  # 步骤名称：部署到阿里云 ECS 服务器
         uses: easingthemes/ssh-deploy@v2.1.5  # 使用 SSH 部署 action，实现服务器文件传输
         env:  # 环境变量配置
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}  # 阿里云服务器的 SSH 私钥（从 GitHub Secrets 获取）
-          ARGS: "-avzr --delete"  # rsync 参数：a=归档模式,v=详细输出,z=压缩传输,r=递归,delete=删除目标中多余文件
-          SOURCE: "./dist/"  # 源文件路径，部署构建后的 dist 目录内容
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}  # 阿里云服务器的 IP 地址（从 GitHub Secrets 获取）
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}  # 阿里云服务器的用户名（从 GitHub Secrets 获取）
-          TARGET: "/opt/webwiki/docs"  # 服务器上的目标部署路径
+          SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+            # 复制操作的参数。"-avzr --delete"意味部署时清空服务器目标目录下的文件
+            ARGS: "-avzr --delete"
+            # 源目录，相对于$GITHUB_WORKSPACE根目录的路径
+            SOURCE: "./public/"
+            # 服务器域名/IP
+            REMOTE_HOST: ${{ secrets.HOST }}
+            # 服务器默认用户名为root
+            REMOTE_USER: "root"
+            # 目标目录
+            TARGET: '/usr/local/www/dist'
+            # 排除目录
+            EXCLUDE: "/node_modules/"
