@@ -27,13 +27,14 @@ jobs:
         with:
           node-version: 20
       # 安装依赖
-      - name: npm ci
+      - name: npm install
         run: npm ci
       # 打包
       - name: npm build
         run: npm run build
       # 部署到服务器
       - name: deploy
+        uses: easingthemes/ssh-deploy@v2.1.1
         env:
           # 本地.ssh文件下的私钥id_rsa，存在secrets的PRIVATE_KEY中
           SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
@@ -49,6 +50,4 @@ jobs:
           TARGET: '/www/wwwroot/todolist'
           # 排除目录
           EXCLUDE: "/node_modules/"
-
-
 
