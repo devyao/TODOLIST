@@ -1,42 +1,44 @@
-# 构建并部署到阿里云 ECS 的工作流程 - 工作流的描述注释
-name: Build And Deploy To Aliyun ECS  # 工作流的名称，会在 GitHub Actions 页面显示
+# This is a basic workflow to help you get started with Actions
 
-on:  # 定义触发工作流的事件
-  # 当推送到 main 分支时触发 - 推送触发条件
-  push:  # 当代码推送时触发
-    branches: ['main']  # 仅当推送到 main 分支时触发工作流
-  # 当有 PR 提交到 main 分支时触发 - PR 触发条件
-  pull_request:  # 当创建或更新 Pull Request 时触发
-    branches: ['main']  # 仅当 PR 目标是 main 分支时触发工作流
+name: Deploy My Server
 
-jobs:  # 定义工作流中的作业
-  build:  # 作业名称为 build
-    runs-on: ubuntu-latest  # 指定运行环境为最新版本的 Ubuntu (2-core CPU/7 GB RAM/14 GB SSD)
-    steps:  # 定义作业中的步骤
-      - name: Checkout  # 步骤名称：检出代码
-        uses: actions/checkout@v2  # 使用 checkout action v2 版本来检出仓库代码
-        with:  # 配置参数
-          persist-credentials: false  # 不持久化 Git 凭据，提高安全性
-          ref: main  # 指定检出 main 分支
-          submodules: true  # 同时检出子模块（如果有的话）
+on:
+  push:
+    branches: [ master ]
 
-      - name: Set up Node.js  # 步骤名称：设置 Node.js 环境
-        uses: actions/setup-node@v4  # 使用 setup-node action v4 版本
-        with:  # 配置参数
-          node-version: 20  # 指定 Node.js 版本为 20
-          cache: 'npm'  # 启用 npm 缓存以加速依赖安装
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
-      - name: Install dependencies  # 步骤名称：安装依赖
-        run: npm ci  # 运行 npm ci 命令安装项目依赖（比 npm install 更适合 CI 环境）
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
 
-      - name: Build project  # 步骤名称：构建项目
-        run: npm run build  # 运行构建命令，生成生产版本的静态文件到 dist 目录
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
 
-      - name: Deploy to Aliyun ECS  # 步骤名称：部署到阿里云 ECS 服务器
-        uses: easingthemes/ssh-deploy@v2.1.5  # 使用 SSH 部署 action，实现服务器文件传输
-        env:  # 环境变量配置
+      - name: use Node.js
+        # 使用action库  actions/setup-node安装node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 20
+      # 安装依赖
+      - name: npm install
+        run: npm install
+      # 打包
+      - name: npm build
+        run: npm run build
+      # 部署到服务器
+      - name: deploy
+        uses: easingthemes/ssh-deploy@v2.1.1
+        env:
+          # 本地.ssh文件下的私钥id_rsa，存在secrets的PRIVATE_KEY中
           SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-            # 复制操作的参数。"-avzr --delete"意味部署时清空服务器目标目录下的文件
+          # 复制操作的参数。"-avzr --delete"意味部署时清空服务器目标目录下的文件
           ARGS: "-avzr --delete"
           # 源目录，相对于$GITHUB_WORKSPACE根目录的路径
           SOURCE: "./public/"
@@ -45,6 +47,8 @@ jobs:  # 定义工作流中的作业
           # 服务器默认用户名为root
           REMOTE_USER: "root"
           # 目标目录
-          TARGET: '/usr/local/www/dist'
+          TARGET: '/usr/local/xxx/dist'
           # 排除目录
           EXCLUDE: "/node_modules/"
+
+
