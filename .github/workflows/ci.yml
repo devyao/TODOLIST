@@ -1,51 +1,51 @@
-# 将静态内容部署到 GitHub Pages 的简易工作流程
-name: Deploy static content to Pages
+# 将静态内容部署到 GitHub Pages 的简易工作流程 - 工作流的描述注释
+name: Deploy static content to Pages  # 工作流的名称，会在 GitHub Actions 页面显示
 
-on:
-  # 仅在推送到默认分支时运行。
-  push:
-    branches: ['main']
+on:  # 定义触发工作流的事件
+  # 仅在推送到默认分支时运行。 - 注释说明推送触发条件
+  push:  # 当代码推送时触发
+    branches: ['main']  # 仅当推送到 main 分支时触发工作流
 
-  # 这个选项可以使你手动在 Action tab 页面触发工作流
-  workflow_dispatch:
+  # 这个选项可以使你手动在 Action tab 页面触发工作流 - 手动触发说明
+  workflow_dispatch:  # 允许在 GitHub 界面手动触发工作流
 
-# 设置 GITHUB_TOKEN 的权限，以允许部署到 GitHub Pages。
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+# 设置 GITHUB_TOKEN 的权限，以允许部署到 GitHub Pages。 - 权限设置说明
+permissions:  # 定义工作流的权限范围
+  contents: read  # 允许读取仓库内容的权限
+  pages: write  # 允许写入 GitHub Pages 的权限
+  id-token: write  # 允许写入 ID token 的权限（用于 OIDC 认证）
 
-# 允许一个并发的部署
-concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+# 允许一个并发的部署 - 并发控制说明
+concurrency:  # 并发控制配置
+  group: 'pages'  # 将并发限制在 'pages' 组内
+  cancel-in-progress: true  # 如果有新的部署开始，取消正在进行的部署
 
-jobs:
-  # 单次部署的工作描述
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build
-        run: npm run build
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload dist folder
-          path: './dist'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+jobs:  # 定义工作流中的作业
+  # 单次部署的工作描述 - 部署作业说明
+  deploy:  # 作业名称为 deploy
+    environment:  # 指定部署环境
+      name: github-pages  # 环境名称为 github-pages
+      url: ${{ steps.deployment.outputs.page_url }}  # 部署完成后的 URL，从 deployment 步骤的输出获取
+    runs-on: ubuntu-latest  # 指定运行环境为最新版本的 Ubuntu
+    steps:  # 定义作业中的步骤
+      - name: Checkout  # 步骤名称：检出代码
+        uses: actions/checkout@v4  # 使用 checkout action v4 版本来检出仓库代码
+      - name: Set up Node  # 步骤名称：设置 Node.js 环境
+        uses: actions/setup-node@v4  # 使用 setup-node action v4 版本
+        with:  # 配置参数
+          node-version: 20  # 指定 Node.js 版本为 20
+          cache: 'npm'  # 启用 npm 缓存以加速依赖安装
+      - name: Install dependencies  # 步骤名称：安装依赖
+        run: npm ci  # 运行 npm ci 命令安装项目依赖（比 npm install 更适合 CI 环境）
+      - name: Build  # 步骤名称：构建项目
+        run: npm run build  # 运行构建命令，生成生产版本的静态文件
+      - name: Setup Pages  # 步骤名称：设置 Pages 环境
+        uses: actions/configure-pages@v4  # 使用 configure-pages action v4 版本配置 GitHub Pages
+      - name: Upload artifact  # 步骤名称：上传构建产物
+        uses: actions/upload-pages-artifact@v3  # 使用 upload-pages-artifact action v3 版本
+        with:  # 配置参数
+          # Upload dist folder - 上传 dist 文件夹注释
+          path: './dist'  # 指定要上传的路径为 ./dist 目录（构建输出目录）
+      - name: Deploy to GitHub Pages  # 步骤名称：部署到 GitHub Pages
+        id: deployment  # 为这个步骤指定 ID，以便其他步骤引用其输出
+        uses: actions/deploy-pages@v4  # 使用 deploy-pages action v4 版本进行实际部署
