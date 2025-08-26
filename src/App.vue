@@ -48,7 +48,7 @@ const todoComputeData = computed(() => {
           <span>/</span>
           <router-link to="/will" class="data">待完成({{ todoComputeData.willNum }})</router-link>
           <span>/</span>
-          <router-link to="/completed" class="data">已完成{{ todoComputeData.completedNum }}</router-link>
+          <router-link to="/completed" class="data">已完成({{ todoComputeData.completedNum }})</router-link>
         </div>
 
         <el-button style="float: right; padding: 3px 0" type="text" @click="showDialog">添加任务</el-button>
