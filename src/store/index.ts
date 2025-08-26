@@ -1,22 +1,19 @@
 import { defineStore } from 'pinia'
 import type { TODO } from '../types'
 
+function getTodos() {
+  const list = Array.from({length: 50}, (_val, i) => i)
+  return list.map(i => ({
+    id: i,
+    title: `学习Vue3-${i}`,
+    content: `学习Vue3的Composition API-${i}`,
+    completed: i % 2 === 0 ? true : false
+  }))
+}
+
 export const useTodoStore = defineStore('todo', {
   state: () => ({
-    todos: [
-      {
-        id: 1,
-        title: '学习Vue3',
-        content: '学习Vue3的Composition API',
-        completed: false
-      },
-      {
-        id: 2,
-        title: '学习Pinia',
-        content: '学习Pinia状态管理',
-        completed: true
-      }
-    ] as TODO[]
+    todos: getTodos() as TODO[]
   }),
   persist: {
     key: 'todo-store',
