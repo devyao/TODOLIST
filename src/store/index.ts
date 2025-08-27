@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import type { TODO } from '../types'
 
 function getTodos() {
-  const list = Array.from({length: 50}, (_val, i) => i)
+  const list = Array.from({ length: 10 }, (_val, i) => i)
   return list.map(i => ({
     id: i,
     title: `学习Vue3-${i}`,
